@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { IconButton } from 'react-native-paper';
+import { useApp } from '../context/AppContext';
 
 // Screens
 import MainScreen from '../screens/MainScreen';
@@ -18,6 +19,9 @@ const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function MainStack({ navigation }) {
+  const { userInfo } = useApp();
+  const garageName = userInfo?.GarageName || 'BikeBuilders';
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -34,6 +38,7 @@ function MainStack({ navigation }) {
         name="Main"
         component={MainScreen}
         options={{
+          title: garageName,
           headerLeft: () => (
             <IconButton
               icon="menu"
@@ -73,7 +78,14 @@ export default function Navigation() {
     <NavigationContainer>
       <Drawer.Navigator
         screenOptions={{
-          headerShown: false,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#6200ee',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
           drawerStyle: {
             backgroundColor: '#fff',
             width: 280,
@@ -85,7 +97,7 @@ export default function Navigation() {
         <Drawer.Screen
           name="Home"
           component={MainStack}
-          options={{ title: 'Home' }}
+          options={{ title: 'Home', headerShown: false }}
         />
         <Drawer.Screen
           name="Admin"

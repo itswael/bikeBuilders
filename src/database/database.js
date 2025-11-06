@@ -17,77 +17,101 @@ class Database {
   }
 
   async createTables() {
-    const queries = [
-      // Customers Table
-      `CREATE TABLE IF NOT EXISTS Customers (
-        CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Name TEXT NOT NULL,
-        Phone TEXT UNIQUE,
-        Address TEXT,
-        Email TEXT UNIQUE
-      );`,
-      
-      // Vehicles Table
-      `CREATE TABLE IF NOT EXISTS Vehicles (
-        RegNumber TEXT PRIMARY KEY,
-        CustomerID INTEGER NOT NULL,
-        VehicleName TEXT,
-        LastServiceDate TEXT,
-        LastReading INTEGER,
-        FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
-      );`,
-      
-      // Services Table
-      `CREATE TABLE IF NOT EXISTS Services (
-        ServiceLogID INTEGER PRIMARY KEY AUTOINCREMENT,
-        RegNumber TEXT NOT NULL,
-        TimestampKey INTEGER NOT NULL,
-        CurrentReading INTEGER,
-        TotalAmount REAL DEFAULT 0,
-        PaymentStatus TEXT DEFAULT 'Pending',
-        PaidAmount REAL DEFAULT 0,
-        Status TEXT DEFAULT 'In Progress',
-        CompletedOn TEXT,
-        OutstandingBalance REAL DEFAULT 0,
-        StartedOn TEXT,
-        FOREIGN KEY (RegNumber) REFERENCES Vehicles(RegNumber)
-      );`,
-      
-      // ServiceParts Table
-      `CREATE TABLE IF NOT EXISTS ServiceParts (
-        PartLogID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ServiceLogID INTEGER NOT NULL,
-        PartName TEXT NOT NULL,
-        Amount REAL NOT NULL,
-        FOREIGN KEY (ServiceLogID) REFERENCES Services(ServiceLogID)
-      );`,
-      
-      // CommonServices Table (for admin-managed services/parts inventory)
-      `CREATE TABLE IF NOT EXISTS CommonServices (
-        ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ServiceName TEXT NOT NULL UNIQUE,
-        DefaultAmount REAL NOT NULL
-      );`,
-      
-      // UserInfo Table
-      `CREATE TABLE IF NOT EXISTS UserInfo (
-        UserID INTEGER PRIMARY KEY CHECK (UserID = 1),
-        Name TEXT,
-        Email TEXT,
-        PhoneNumber TEXT,
-        GarageName TEXT,
-        Address TEXT
-      );`
-    ];
-
-    for (const query of queries) {
-      await this.db.execAsync(query);
-    }
-    
-    // Insert default user info row if not exists
-    await this.db.runAsync(
-      'INSERT OR IGNORE INTO UserInfo (UserID, Name, Email, PhoneNumber, GarageName, Address) VALUES (1, "", "", "", "", "")'
-    );
+    return new Promise((resolve, reject) => {
+      this.db.transaction(tx => {
+        // Customers Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS Customers (
+            CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name TEXT NOT NULL,
+            Phone TEXT UNIQUE,
+            Address TEXT,
+            Email TEXT UNIQUE
+          );`,
+          [],
+          () => console.log('Customers table created')
+        );
+        
+        // Vehicles Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS Vehicles (
+            RegNumber TEXT PRIMARY KEY,
+            CustomerID INTEGER NOT NULL,
+            VehicleName TEXT,
+            LastServiceDate TEXT,
+            LastReading INTEGER,
+            FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+          );`,
+          [],
+          () => console.log('Vehicles table created')
+        );
+        
+        // Services Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS Services (
+            ServiceLogID INTEGER PRIMARY KEY AUTOINCREMENT,
+            RegNumber TEXT NOT NULL,
+            TimestampKey INTEGER NOT NULL,
+            CurrentReading INTEGER,
+            TotalAmount REAL DEFAULT 0,
+            PaymentStatus TEXT DEFAULT 'Pending',
+            PaidAmount REAL DEFAULT 0,
+            Status TEXT DEFAULT 'In Progress',
+            CompletedOn TEXT,
+            OutstandingBalance REAL DEFAULT 0,
+            StartedOn TEXT,
+            FOREIGN KEY (RegNumber) REFERENCES Vehicles(RegNumber)
+          );`,
+          [],
+          () => console.log('Services table created')
+        );
+        
+        // ServiceParts Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS ServiceParts (
+            PartLogID INTEGER PRIMARY KEY AUTOINCREMENT,
+            ServiceLogID INTEGER NOT NULL,
+            PartName TEXT NOT NULL,
+            Amount REAL NOT NULL,
+            FOREIGN KEY (ServiceLogID) REFERENCES Services(ServiceLogID)
+          );`,
+          [],
+          () => console.log('ServiceParts table created')
+        );
+        
+        // CommonServices Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS CommonServices (
+            ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
+            ServiceName TEXT NOT NULL UNIQUE,
+            DefaultAmount REAL NOT NULL
+          );`,
+          [],
+          () => console.log('CommonServices table created')
+        );
+        
+        // UserInfo Table
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS UserInfo (
+            UserID INTEGER PRIMARY KEY CHECK (UserID = 1),
+            Name TEXT,
+            Email TEXT,
+            PhoneNumber TEXT,
+            GarageName TEXT,
+            Address TEXT
+          );`,
+          [],
+          () => console.log('UserInfo table created')
+        );
+        
+        // Insert default user info row if not exists
+        tx.executeSql(
+          'INSERT OR IGNORE INTO UserInfo (UserID, Name, Email, PhoneNumber, GarageName, Address) VALUES (1, "", "", "", "", "")',
+          [],
+          () => console.log('Default UserInfo inserted')
+        );
+      }, reject, resolve);
+    });
   }
 
   // Customer operations

@@ -24,9 +24,6 @@
         "INTERNET",
         "ACCESS_NETWORK_STATE"
       ]
-    },
-    "plugins": [
-      "expo-sqlite"
-    ]
+    }
   }
 }

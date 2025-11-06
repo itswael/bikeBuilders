@@ -14,6 +14,8 @@ import VehicleRegistrationScreen from '../screens/VehicleRegistrationScreen';
 import AdminScreen from '../screens/AdminScreen';
 import UserInfoScreen from '../screens/UserInfoScreen';
 import AboutScreen from '../screens/AboutScreen';
+import GDriveScreen from '../screens/GDriveScreen';
+import SMSReminderScreen from '../screens/SMSReminderScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -103,6 +105,16 @@ export default function Navigation() {
           name="Admin"
           component={AdminScreen}
           options={{ title: 'Admin Panel' }}
+        />
+        <Drawer.Screen
+          name="GDrive"
+          component={GDriveScreen}
+          options={{ title: 'Backup & Restore' }}
+        />
+        <Drawer.Screen
+          name="SMSReminder"
+          component={SMSReminderScreen}
+          options={{ title: 'Send SMS Reminders' }}
         />
         <Drawer.Screen
           name="UserInfo"

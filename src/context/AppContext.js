@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import database from '../database/database';
+import googleDriveSyncService from '../services/googleDriveSync';
 
 const AppContext = createContext();
 
@@ -57,6 +58,18 @@ export const AppProvider = ({ children }) => {
     await loadCommonServices();
   };
 
+  // Trigger auto-sync after data changes
+  const triggerAutoSync = async () => {
+    try {
+      // Run in background, don't wait for it
+      googleDriveSyncService.autoSync().catch(error => {
+        console.log('[AppContext] Auto sync skipped:', error.message);
+      });
+    } catch (error) {
+      console.log('[AppContext] Auto sync error:', error.message);
+    }
+  };
+
   const value = {
     isLoading,
     userInfo,
@@ -65,6 +78,7 @@ export const AppProvider = ({ children }) => {
     loadUserInfo,
     refreshInProgressServices,
     refreshCommonServices,
+    triggerAutoSync,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

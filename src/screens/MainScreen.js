@@ -70,12 +70,6 @@ export default function MainScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.garageName}>
-          {userInfo?.GarageName || 'BikeBuilders'}
-        </Text>
-      </View>
-
       <Searchbar
         placeholder="Vehicle Registration Number"
         onChangeText={handleSearch}
@@ -116,16 +110,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#6200ee',
-    padding: 16,
-    alignItems: 'center',
-  },
-  garageName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   searchBar: {
     margin: 16,

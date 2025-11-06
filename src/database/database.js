@@ -48,7 +48,8 @@ class Database {
         CustomerID INTEGER NOT NULL,
         VehicleName TEXT,
         LastServiceDate TEXT,
-        LastReading INTEGER
+        LastReading INTEGER,
+        NextServiceDays INTEGER DEFAULT 90
       )`,
       `CREATE TABLE IF NOT EXISTS Services (
         ServiceLogID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,7 +81,8 @@ class Database {
         Email TEXT,
         PhoneNumber TEXT,
         GarageName TEXT,
-        Address TEXT
+        Address TEXT,
+        ServiceReminderDays INTEGER DEFAULT 90
       )`,
     ];
 
@@ -88,10 +90,32 @@ class Database {
       await this.executeSql(sql);
     }
 
+    // Migration: Add NextServiceDays column to Vehicles if it doesn't exist
+    try {
+      await this.executeSql(
+        'ALTER TABLE Vehicles ADD COLUMN NextServiceDays INTEGER DEFAULT 90'
+      );
+      console.log('Migration: Added NextServiceDays column to Vehicles');
+    } catch (error) {
+      // Column already exists, ignore error
+      console.log('NextServiceDays column already exists in Vehicles');
+    }
+
+    // Migration: Add ServiceReminderDays column if it doesn't exist (legacy, will be removed)
+    try {
+      await this.executeSql(
+        'ALTER TABLE UserInfo ADD COLUMN ServiceReminderDays INTEGER DEFAULT 90'
+      );
+      console.log('Migration: Added ServiceReminderDays column');
+    } catch (error) {
+      // Column already exists, ignore error
+      console.log('ServiceReminderDays column already exists');
+    }
+
     // Insert default user info
     await this.executeSql(
-      'INSERT OR IGNORE INTO UserInfo (UserID, Name, Email, PhoneNumber, GarageName, Address) VALUES (?, ?, ?, ?, ?, ?)',
-      [1, '', '', '', '', '']
+      'INSERT OR IGNORE INTO UserInfo (UserID, Name, Email, PhoneNumber, GarageName, Address, ServiceReminderDays) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [1, '', '', '', '', '', 90]
     );
   }
 
@@ -120,10 +144,10 @@ class Database {
   }
 
   // Vehicle operations
-  async addVehicle(regNumber, customerId, vehicleName) {
+  async addVehicle(regNumber, customerId, vehicleName, nextServiceDays = 90) {
     await this.executeSql(
-      'INSERT INTO Vehicles (RegNumber, CustomerID, VehicleName) VALUES (?, ?, ?)',
-      [regNumber, customerId, vehicleName]
+      'INSERT INTO Vehicles (RegNumber, CustomerID, VehicleName, NextServiceDays) VALUES (?, ?, ?, ?)',
+      [regNumber, customerId, vehicleName, nextServiceDays]
     );
   }
 
@@ -138,11 +162,18 @@ class Database {
     return result.rows.length > 0 ? result.rows.item(0) : null;
   }
 
-  async updateVehicle(regNumber, customerId, vehicleName, lastServiceDate, lastReading) {
-    await this.executeSql(
-      'UPDATE Vehicles SET CustomerID = ?, VehicleName = ?, LastServiceDate = ?, LastReading = ? WHERE RegNumber = ?',
-      [customerId, vehicleName, lastServiceDate, lastReading, regNumber]
-    );
+  async updateVehicle(regNumber, customerId, vehicleName, lastServiceDate, lastReading, nextServiceDays) {
+    if (nextServiceDays !== undefined) {
+      await this.executeSql(
+        'UPDATE Vehicles SET CustomerID = ?, VehicleName = ?, LastServiceDate = ?, LastReading = ?, NextServiceDays = ? WHERE RegNumber = ?',
+        [customerId, vehicleName, lastServiceDate, lastReading, nextServiceDays, regNumber]
+      );
+    } else {
+      await this.executeSql(
+        'UPDATE Vehicles SET CustomerID = ?, VehicleName = ?, LastServiceDate = ?, LastReading = ? WHERE RegNumber = ?',
+        [customerId, vehicleName, lastServiceDate, lastReading, regNumber]
+      );
+    }
   }
 
   async searchVehicles(searchTerm) {
@@ -282,11 +313,30 @@ class Database {
     return result.rows.length > 0 ? result.rows.item(0) : null;
   }
 
-  async updateUserInfo(name, email, phoneNumber, garageName, address) {
+  async updateUserInfo(name, email, phoneNumber, garageName, address, serviceReminderDays) {
     await this.executeSql(
-      'UPDATE UserInfo SET Name = ?, Email = ?, PhoneNumber = ?, GarageName = ?, Address = ? WHERE UserID = 1',
-      [name, email, phoneNumber, garageName, address]
+      'UPDATE UserInfo SET Name = ?, Email = ?, PhoneNumber = ?, GarageName = ?, Address = ?, ServiceReminderDays = ? WHERE UserID = 1',
+      [name, email, phoneNumber, garageName, address, serviceReminderDays]
     );
+  }
+
+  // Get vehicles that need service reminders based on their individual NextServiceDays
+  async getVehiclesNeedingReminder() {
+    const result = await this.executeSql(
+      `SELECT v.*, c.Name as OwnerName, c.Phone
+       FROM Vehicles v
+       INNER JOIN Customers c ON v.CustomerID = c.CustomerID
+       WHERE v.LastServiceDate IS NOT NULL 
+       AND c.Phone IS NOT NULL
+       AND julianday('now') - julianday(v.LastServiceDate) >= COALESCE(v.NextServiceDays, 90)`,
+      []
+    );
+    
+    const vehicles = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      vehicles.push(result.rows.item(i));
+    }
+    return vehicles;
   }
 
   // Export/Import for Google Drive backup

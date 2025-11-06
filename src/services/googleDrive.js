@@ -8,6 +8,11 @@ WebBrowser.maybeCompleteAuthSession();
 const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const BACKUP_FILENAME = 'bikeBuilders_backup.json';
 
+// Google OAuth client ID
+const ANDROID_CLIENT_ID = '927870388857-flk0ghnh38t37s7gr7b6338s6mg7k1jd.apps.googleusercontent.com';
+// You need to create an Android OAuth client ID in Google Cloud Console
+// For now, using the web client ID
+
 class GoogleDriveService {
   constructor() {
     this.accessToken = null;
@@ -16,22 +21,31 @@ class GoogleDriveService {
   // Initialize Google OAuth
   async authenticate() {
     try {
-      // TODO: Replace with your Google OAuth client ID
-      const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-      
-      const redirectUri = AuthSession.makeRedirectUri({
-        scheme: 'bikebuilders',
+      const redirectUri = AuthSession.makeRedirectUri();
+
+      console.log('Starting authentication...');
+      console.log('Client ID:', ANDROID_CLIENT_ID);
+      console.log('Redirect URI:', redirectUri);
+      console.log('Add this URI to Google Cloud Console if not already added');
+
+      const request = new AuthSession.AuthRequest({
+        clientId: ANDROID_CLIENT_ID,
+        scopes: [GOOGLE_DRIVE_SCOPE],
+        redirectUri,
       });
 
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${GOOGLE_DRIVE_SCOPE}`;
+      const result = await request.promptAsync({ authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' });
 
-      const result = await AuthSession.startAsync({ authUrl });
+      console.log('Auth result:', result);
 
-      if (result.type === 'success') {
+      if (result.type === 'success' && result.params.access_token) {
         this.accessToken = result.params.access_token;
         await AsyncStorage.setItem('googleDriveToken', this.accessToken);
+        console.log('Authentication successful!');
         return true;
       }
+      
+      console.log('Authentication failed or was cancelled');
       return false;
     } catch (error) {
       console.error('Error authenticating with Google:', error);

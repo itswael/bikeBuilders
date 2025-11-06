@@ -116,7 +116,7 @@ export default function VehicleServiceScreen({ navigation, route }) {
 
   const handleShare = async () => {
     try {
-      const { userInfo } = await database.getUserInfo();
+      const userInfo = await database.getUserInfo();
       const garageName = userInfo?.GarageName || 'BikeBuilders';
       
       // Create receipt text
@@ -142,8 +142,12 @@ export default function VehicleServiceScreen({ navigation, route }) {
       receiptText += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
       
       serviceParts.forEach((part, index) => {
-        receiptText += `${index + 1}. ${part.PartName}\n`;
-        receiptText += `   ₹${part.Amount}\n`;
+        const itemName = `${index + 1}. ${part.PartName}`;
+        const amount = `₹${part.Amount}`;
+        const maxWidth = 30; // Total width for the line
+        const padding = maxWidth - itemName.length - amount.length;
+        const spaces = padding > 0 ? ' '.repeat(padding) : ' ';
+        receiptText += `${itemName}${spaces}${amount}\n`;
       });
       
       receiptText += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;

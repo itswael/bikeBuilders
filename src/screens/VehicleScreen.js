@@ -19,6 +19,7 @@ export default function VehicleScreen({ navigation, route }) {
   const { vehicle: initialVehicle } = route.params;
   const [vehicle, setVehicle] = useState(initialVehicle);
   const [services, setServices] = useState([]);
+  const [totalBalance, setTotalBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,8 +37,10 @@ export default function VehicleScreen({ navigation, route }) {
     try {
       const updatedVehicle = await database.getVehicleByRegNumber(vehicle.RegNumber);
       const vehicleServices = await database.getServicesByRegNumber(vehicle.RegNumber);
+      const balance = await database.getTotalOutstandingBalance(vehicle.RegNumber);
       setVehicle(updatedVehicle);
       setServices(vehicleServices);
+      setTotalBalance(balance);
     } catch (error) {
       console.error('Error loading vehicle data:', error);
     } finally {
@@ -158,6 +161,13 @@ export default function VehicleScreen({ navigation, route }) {
                 <Text style={styles.value}>{vehicle.LastReading}</Text>
               </View>
             )}
+
+            {totalBalance > 0 && (
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Total Balance:</Text>
+                <Text style={[styles.value, styles.balanceText]}>₹{totalBalance}</Text>
+              </View>
+            )}
           </Card.Content>
         </Card>
 
@@ -222,6 +232,10 @@ const styles = StyleSheet.create({
   },
   value: {
     flex: 1,
+  },
+  balanceText: {
+    color: '#B00020',
+    fontWeight: 'bold',
   },
   servicesContainer: {
     padding: 16,

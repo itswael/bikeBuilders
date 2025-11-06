@@ -156,12 +156,14 @@ export default function VehicleServiceScreen({ navigation, route }) {
             <Text>₹{service.PaidAmount || 0}</Text>
           </View>
 
-          <View style={styles.totalRow}>
-            <Text style={styles.balanceLabel}>Outstanding Balance</Text>
-            <Text style={styles.balanceAmount}>
-              ₹{service.OutstandingBalance || service.TotalAmount}
-            </Text>
-          </View>
+          {(service.OutstandingBalance ?? service.TotalAmount) > 0 && (
+            <View style={styles.totalRow}>
+              <Text style={styles.balanceLabel}>Outstanding Balance</Text>
+              <Text style={styles.balanceAmount}>
+                ₹{service.OutstandingBalance ?? service.TotalAmount}
+              </Text>
+            </View>
+          )}
 
           <View style={styles.statusRow}>
             <Text>Payment Status: </Text>

@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "bikebuilders",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -24,6 +25,11 @@
         "INTERNET",
         "ACCESS_NETWORK_STATE"
       ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9cc3b93f-f461-4c87-8cb5-0dd411239de9"
+      }
     }
   }
 }

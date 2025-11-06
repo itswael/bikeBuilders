@@ -3,6 +3,8 @@ import {
   View,
   ScrollView,
   StyleSheet,
+  Share,
+  Alert,
 } from 'react-native';
 import {
   Card,
@@ -111,6 +113,80 @@ export default function VehicleServiceScreen({ navigation, route }) {
       setIsLoading(false);
     }
   };
+
+  const handleShare = async () => {
+    try {
+      const { userInfo } = await database.getUserInfo();
+      const garageName = userInfo?.GarageName || 'BikeBuilders';
+      
+      // Create receipt text
+      let receiptText = `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      receiptText += `${garageName.toUpperCase()}\n`;
+      receiptText += `SERVICE RECEIPT\n`;
+      receiptText += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+      
+      receiptText += `Vehicle: ${vehicle.RegNumber}\n`;
+      if (vehicle.VehicleName) {
+        receiptText += `Model: ${vehicle.VehicleName}\n`;
+      }
+      receiptText += `Owner: ${vehicle.OwnerName}\n`;
+      receiptText += `Phone: ${vehicle.Phone}\n`;
+      receiptText += `Current Reading: ${service.CurrentReading}\n\n`;
+      
+      receiptText += `Service Date: ${service.StartedOn ? new Date(service.StartedOn).toLocaleDateString() : 'N/A'}\n`;
+      if (service.CompletedOn) {
+        receiptText += `Completed: ${new Date(service.CompletedOn).toLocaleDateString()}\n`;
+      }
+      receiptText += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      receiptText += `SERVICE DETAILS\n`;
+      receiptText += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      
+      serviceParts.forEach((part, index) => {
+        receiptText += `${index + 1}. ${part.PartName}\n`;
+        receiptText += `   ₹${part.Amount}\n`;
+      });
+      
+      receiptText += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      receiptText += `PAYMENT SUMMARY\n`;
+      receiptText += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      receiptText += `Total Amount:     ₹${service.TotalAmount}\n`;
+      receiptText += `Paid Amount:      ₹${service.PaidAmount || 0}\n`;
+      
+      const balance = service.OutstandingBalance ?? service.TotalAmount;
+      if (balance > 0) {
+        receiptText += `Outstanding:      ₹${balance}\n`;
+      }
+      
+      receiptText += `\nPayment Status: ${paymentStatus}\n`;
+      receiptText += `Service Status: ${service.Status}\n`;
+      receiptText += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      receiptText += `Thank you for your business!\n`;
+      receiptText += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+      await Share.share({
+        message: receiptText,
+        title: `Service Receipt - ${vehicle.RegNumber}`,
+      });
+    } catch (error) {
+      console.error('Error sharing receipt:', error);
+      Alert.alert('Error', 'Failed to share receipt. Please try again.');
+    }
+  };
+
+  // Set up header button
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          icon="share-variant"
+          onPress={handleShare}
+          labelStyle={{ margin: 0 }}
+        >
+          Share
+        </Button>
+      ),
+    });
+  }, [navigation, service, serviceParts, vehicle, paymentStatus]);
 
   return (
     <ScrollView style={styles.container}>

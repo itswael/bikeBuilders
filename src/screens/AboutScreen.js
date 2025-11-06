@@ -25,16 +25,6 @@ export default function AboutScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <IconButton
-          icon="arrow-left"
-          iconColor="#fff"
-          size={24}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={styles.headerTitle}>About</Text>
-      </View>
-
       <ScrollView style={styles.content}>
         <Card style={styles.card}>
           <Card.Content>
@@ -107,17 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#6200ee',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
   content: {
     flex: 1,
     padding: 16,
@@ -127,7 +106,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   appTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#6200ee',
     marginBottom: 8,

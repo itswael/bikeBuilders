@@ -49,16 +49,6 @@ export default function UserInfoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <IconButton
-          icon="arrow-left"
-          iconColor="#fff"
-          size={24}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={styles.headerTitle}>User Information</Text>
-      </View>
-
       <ScrollView style={styles.content}>
         <Text style={styles.title}>Application User Info</Text>
 
@@ -123,17 +113,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#6200ee',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   content: {
     flex: 1,

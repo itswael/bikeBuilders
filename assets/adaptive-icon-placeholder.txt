@@ -1,0 +1,15 @@
+/**
+ * This is a placeholder for adaptive-icon.png
+ * 
+ * Requirements:
+ * - Size: 1024x1024 pixels
+ * - Format: PNG
+ * - Purpose: Android adaptive icon (safe zone in center 66%)
+ * 
+ * To create your adaptive icon:
+ * 1. Design with important content in center 66%
+ * 2. Export as 1024x1024px PNG
+ * 3. Replace this file with adaptive-icon.png
+ * 
+ * For now, Expo will use default icons during development.
+ */

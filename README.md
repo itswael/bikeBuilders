@@ -1,6 +1,6 @@
 # BikeBuilders - Garage Management System
 
-A comprehensive React Native Android application for managing garage/vehicle service operations with SQLite database and planned Google Drive backup functionality.
+A comprehensive React Native Android application for managing garage/vehicle service operations with SQLite database, SMS reminders, and automatic Google Drive backup.
 
 ## Features
 
@@ -9,9 +9,12 @@ A comprehensive React Native Android application for managing garage/vehicle ser
 - **Service Tracking**: Create and track vehicle services
 - **Payment Management**: Handle payments with partial payment support
 - **Service History**: View complete service history for each vehicle
+- **SMS Reminders**: Send service reminders to customers via SMS
 - **Admin Panel**: Manage common services and their default charges
 - **Search Functionality**: Quick search by vehicle registration number
 - **In-Progress Services**: Track ongoing services on the main screen
+- **Google Drive Auto Sync**: Automatic backup to Google Drive (requires setup)
+- **Local Backup**: Export/import backups as files
 
 ## Tech Stack
 
@@ -19,14 +22,16 @@ A comprehensive React Native Android application for managing garage/vehicle ser
 - SQLite (in-memory database)
 - React Navigation (Stack + Drawer)
 - React Native Paper (UI components)
-- Google Drive API integration (planned)
+- Google Drive API with auto-sync
+- Expo SMS for service reminders
+- Local file backup with sharing
 
 ## Database Schema
 
 ### Tables
 
 1. **Customers** - Customer information
-2. **Vehicles** - Vehicle registration and details
+2. **Vehicles** - Vehicle registration and details (includes NextServiceDays)
 3. **Services** - Service records with status tracking
 4. **ServiceParts** - Individual parts/services per service record
 5. **CommonServices** - Admin-managed service inventory
@@ -75,14 +80,24 @@ bikeBuilders/
 │   │   ├── VehicleRegistrationScreen.js
 │   │   ├── NewServiceScreen.js    # Create new service
 │   │   ├── VehicleServiceScreen.js
+│   │   ├── SMSReminderScreen.js   # SMS service reminders
+│   │   ├── GDriveScreen.js        # Google Drive backup & local backup
 │   │   ├── AdminScreen.js         # Admin panel
 │   │   ├── UserInfoScreen.js      # User profile
 │   │   └── AboutScreen.js         # About page
+│   └── services/
+│       ├── googleDriveSync.js     # Google Drive auto-sync service
+│       └── localBackup.js         # Local file backup service
 ├── assets/                        # Images and icons
 ├── App.js                         # Root component
 ├── app.json                       # Expo configuration
 ├── package.json                   # Dependencies
-└── babel.config.js                # Babel configuration
+├── babel.config.js                # Babel configuration
+├── GOOGLE_DRIVE_SETUP.md          # Google Drive setup guide
+├── GOOGLE_DRIVE_INTEGRATION.md    # Developer integration guide
+├── GOOGLE_DRIVE_QUICKSTART.md     # Quick setup card
+├── GOOGLE_DRIVE_SUMMARY.md        # Implementation summary
+└── SMS_FEATURE_GUIDE.md           # SMS reminders documentation
 ```
 
 ## Usage
@@ -118,13 +133,42 @@ bikeBuilders/
 - Update contact information
 - Configure user profile
 
+### SMS Service Reminders
+- View vehicles due for service (based on per-vehicle NextServiceDays)
+- Send individual SMS reminders
+- Send bulk SMS reminders with throttling
+- Track sent/failed message counts
+- See `SMS_FEATURE_GUIDE.md` for details
+
+### Backup & Restore
+- **Google Drive Auto Sync**: Automatic background backup to Google Drive
+- **Local Backup**: Export/import backup files to any location
+- See `GOOGLE_DRIVE_QUICKSTART.md` for setup
+
+## Google Drive Backup Setup
+
+The app supports automatic backup to Google Drive. To enable:
+
+1. **Quick Setup** (30 minutes): Follow `GOOGLE_DRIVE_QUICKSTART.md`
+2. **Detailed Guide**: See `GOOGLE_DRIVE_SETUP.md`
+3. **Integration**: See `GOOGLE_DRIVE_INTEGRATION.md` for adding auto-sync to screens
+
+**Key Steps:**
+- Create Google Cloud Console project
+- Enable Google Drive API
+- Get Web Client ID
+- Configure in `src/services/googleDriveSync.js`
+- Rebuild app with `npx expo prebuild --clean`
+
+**Note**: Local backup works without any setup!
+
 ## Upcoming Features
 
-- Google Drive backup and restore
 - PDF invoice generation
 - Analytics and reports
 - Multiple language support
 - Dark mode
+- Multi-device sync
 
 ## Development
 

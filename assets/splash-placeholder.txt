@@ -1,0 +1,15 @@
+/**
+ * This is a placeholder for splash.png
+ * 
+ * Requirements:
+ * - Size: 1284x2778 pixels (or similar aspect ratio)
+ * - Format: PNG
+ * - Purpose: App splash screen
+ * 
+ * To create your splash screen:
+ * 1. Design a splash screen with your branding
+ * 2. Export as PNG with recommended dimensions
+ * 3. Replace this file with splash.png
+ * 
+ * For now, Expo will use default splash screen during development.
+ */

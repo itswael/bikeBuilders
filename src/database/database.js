@@ -7,7 +7,7 @@ class Database {
 
   async init() {
     try {
-      this.db = await SQLite.openDatabaseAsync('bikeBuilders.db');
+      this.db = SQLite.openDatabase('bikeBuilders.db');
       await this.createTables();
       console.log('Database initialized successfully');
     } catch (error) {

@@ -1,0 +1,15 @@
+/**
+ * This is a placeholder for icon.png
+ * 
+ * Requirements:
+ * - Size: 1024x1024 pixels
+ * - Format: PNG
+ * - Purpose: App launcher icon
+ * 
+ * To create your icon:
+ * 1. Design a 1024x1024px icon in your favorite design tool
+ * 2. Export as PNG
+ * 3. Replace this file with icon.png
+ * 
+ * For now, Expo will use default placeholder icons during development.
+ */

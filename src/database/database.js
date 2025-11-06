@@ -132,7 +132,7 @@ class Database {
       `SELECT v.*, c.Name as OwnerName, c.Phone, c.Address, c.Email 
        FROM Vehicles v 
        JOIN Customers c ON v.CustomerID = c.CustomerID 
-       WHERE v.RegNumber = ?`,
+       WHERE LOWER(v.RegNumber) = LOWER(?)`,
       [regNumber]
     );
     return result.rows.length > 0 ? result.rows.item(0) : null;
@@ -150,7 +150,7 @@ class Database {
       `SELECT v.*, c.Name as OwnerName 
        FROM Vehicles v 
        JOIN Customers c ON v.CustomerID = c.CustomerID 
-       WHERE v.RegNumber LIKE ?`,
+       WHERE LOWER(v.RegNumber) LIKE LOWER(?)`,
       [`%${searchTerm}%`]
     );
     const items = [];
@@ -211,6 +211,14 @@ class Database {
       'UPDATE Services SET PaidAmount = ?, Status = ?, CompletedOn = ?, OutstandingBalance = ?, PaymentStatus = ? WHERE ServiceLogID = ?',
       [paidAmount, status, completedOn, outstandingBalance, paymentStatus, serviceLogId]
     );
+  }
+
+  async getTotalOutstandingBalance(regNumber) {
+    const result = await this.executeSql(
+      'SELECT SUM(OutstandingBalance) as TotalBalance FROM Services WHERE RegNumber = ?',
+      [regNumber]
+    );
+    return result.rows.length > 0 ? (result.rows.item(0).TotalBalance || 0) : 0;
   }
 
   // ServiceParts operations

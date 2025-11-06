@@ -24,6 +24,7 @@ export default function UserInfoScreen({ navigation }) {
 
   useEffect(() => {
     if (userInfo) {
+      console.log('UserInfo loaded:', userInfo);
       setName(userInfo.Name || '');
       setEmail(userInfo.Email || '');
       setPhoneNumber(userInfo.PhoneNumber || '');
@@ -35,7 +36,7 @@ export default function UserInfoScreen({ navigation }) {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await database.updateUserInfo(name, email, phoneNumber, garageName, address);
+      await database.updateUserInfo(name, email, phoneNumber, garageName, address, 90);
       await loadUserInfo();
       alert('User information updated successfully');
       navigation.goBack();
@@ -125,6 +126,11 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+  },
+  debugText: {
+    color: 'red',
+    marginBottom: 10,
+    fontSize: 12,
   },
   button: {
     marginTop: 16,

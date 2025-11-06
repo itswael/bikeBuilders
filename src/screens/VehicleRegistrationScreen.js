@@ -11,15 +11,18 @@ import {
   ActivityIndicator,
 } from 'react-native-paper';
 import database from '../database/database';
+import { useApp } from '../context/AppContext';
 
 export default function VehicleRegistrationScreen({ navigation, route }) {
   const { mode, vehicle } = route.params || {};
+  const { triggerAutoSync } = useApp();
   const [regNumber, setRegNumber] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [vehicleName, setVehicleName] = useState('');
+  const [nextServiceDays, setNextServiceDays] = useState('90');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -31,6 +34,7 @@ export default function VehicleRegistrationScreen({ navigation, route }) {
       setAddress(vehicle.Address || '');
       setEmail(vehicle.Email || '');
       setVehicleName(vehicle.VehicleName || '');
+      setNextServiceDays(String(vehicle.NextServiceDays || 90));
     }
   }, [vehicle]);
 
@@ -72,7 +76,8 @@ export default function VehicleRegistrationScreen({ navigation, route }) {
           vehicle.CustomerID,
           vehicleName,
           vehicle.LastServiceDate,
-          vehicle.LastReading
+          vehicle.LastReading,
+          parseInt(nextServiceDays) || 90
         );
         navigation.goBack();
       } else {
@@ -85,7 +90,10 @@ export default function VehicleRegistrationScreen({ navigation, route }) {
         } else {
           // Create new customer and vehicle
           const customerId = await database.addCustomer(ownerName, phone, address, email);
-          await database.addVehicle(regNumber, customerId, vehicleName);
+          await database.addVehicle(regNumber, customerId, vehicleName, parseInt(nextServiceDays) || 90);
+          
+          // Trigger auto-sync after adding vehicle
+          triggerAutoSync();
           
           const newVehicle = await database.getVehicleByRegNumber(regNumber);
           
@@ -208,6 +216,17 @@ export default function VehicleRegistrationScreen({ navigation, route }) {
           mode="outlined"
           keyboardType="email-address"
           style={styles.input}
+        />
+
+        <TextInput
+          label="Next Service Days"
+          value={nextServiceDays}
+          onChangeText={setNextServiceDays}
+          mode="outlined"
+          keyboardType="number-pad"
+          style={styles.input}
+          placeholder="90"
+          helperText="Days after service to send reminder (default: 90)"
         />
 
         <Button

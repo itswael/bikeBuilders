@@ -18,7 +18,7 @@ import database from '../database/database';
 
 export default function NewServiceScreen({ navigation, route }) {
   const { vehicle } = route.params;
-  const { commonServices, refreshInProgressServices } = useApp();
+  const { commonServices, refreshInProgressServices, triggerAutoSync } = useApp();
   const [currentReading, setCurrentReading] = useState('');
   const [selectedServices, setSelectedServices] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -88,6 +88,9 @@ export default function NewServiceScreen({ navigation, route }) {
           parseFloat(service.amount)
         );
       }
+
+      // Trigger auto-sync after creating service
+      triggerAutoSync();
 
       await refreshInProgressServices();
       navigation.navigate('Main');

@@ -199,7 +199,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-For support, email developer@bikebuilders.com or open an issue on GitHub.
+For support, email errwael@gmail.com or open an issue on GitHub.
 
 ## Author
 
